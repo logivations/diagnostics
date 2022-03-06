@@ -84,7 +84,7 @@ if(BUILD_TESTING)
     file(TO_CMAKE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/test/expected_output/create_${test_name}" EXPECTED_OUTPUT)
 
     configure_file(
-      "test/create_analyzers.launch.py.in"
+      "test/create_analyzers.launch.py"
       "test_create_${test_name}.launch.py"
       @ONLY
     )
@@ -105,7 +105,7 @@ if(BUILD_TESTING)
     file(TO_CMAKE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/test/expected_output/output_${test_name}" EXPECTED_OUTPUT)
 
     configure_file(
-      "test/test_analyzers_output.launch.py.in"
+      "test/test_analyzers_output.launch.py"
       "test_output_${test_name}.launch.py"
       @ONLY
     )
@@ -137,19 +137,18 @@ install(
 
 ament_python_install_package(${PROJECT_NAME})
 
-# Install Example
-set(ANALYZER_PARAMS_FILEPATH "${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/example_analyzers.yaml")
-configure_file(example/example.launch.py.in example.launch.py @ONLY)
+set(ANALYZER_PARAMS_FILEPATH "${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/analyzers.yaml")
+configure_file(launch/diagnostics.launch.py diagnostics.launch.py @ONLY)
 install( # launch descriptor
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/example.launch.py
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/diagnostics.launch.py
   DESTINATION share/${PROJECT_NAME}
 )
 install( # example publisher
-  PROGRAMS example/example_pub.py
+  PROGRAMS launch/example_pub.py
   DESTINATION lib/${PROJECT_NAME}
 )
-install( # example aggregator configration
-  FILES example/example_analyzers.yaml
+install( #aggregator configration
+  FILES launch/analyzers.yaml
   DESTINATION share/${PROJECT_NAME}
 )
 

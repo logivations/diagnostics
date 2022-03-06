@@ -50,9 +50,9 @@ PKG = 'diagnostic_aggregator'
 
 
 class DiagnosticTalker(Node):
-
+    """amr health check """
     def __init__(self):
-        super().__init__('diagnostic_talker')
+        super().__init__(node_name='diagnostic_talker')
         self.i = 0
         self.pub = self.create_publisher(DiagnosticArray,
                                          '/diagnostics',
