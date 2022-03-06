@@ -19,8 +19,7 @@ def generate_launch_description():
         emulate_tty=True,
         output='screen')
 
-
-    # example
+    # example node launch
     diag_publisher = Node(
         package='diagnostic_aggregator',
         executable='example_pub.py')

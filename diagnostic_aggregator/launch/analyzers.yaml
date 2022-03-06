@@ -32,3 +32,28 @@ analyzers:
           type: 'diagnostic_aggregator/GenericAnalyzer'
           path: Right
           contains: [ '/right' ]
+    #AMR_COMPONENTS_DIAGNOSTIC
+    w2mo_amr_status:
+      type: 'diagnostic_aggregator/AnalyzerGroup'
+      path: W2MO_AMR_STATUS
+      analyzers:
+        w2mo_amr_status:
+          type: 'diagnostic_aggregator/GenericAnalyzer'
+          path: w2mo_amr_status
+          contains: [ '/w2mo_amr_status' ]
+    battery_SoC:
+      type: 'diagnostic_aggregator/AnalyzerGroup'
+      path: BATTERY_SoC
+      analyzers:
+        battery_SoC:
+          type: 'diagnostic_aggregator/GenericAnalyzer'
+          path: battery_SoC
+          contains: [ '/battery_SoC' ]
+    lift_status:
+      type: 'diagnostic_aggregator/AnalyzerGroup'
+      path: LIFT_STATUS
+      analyzers:
+        lift_status:
+          type: 'diagnostic_aggregator/GenericAnalyzer'
+          path: lift_status
+          contains: [ '/lift_status' ]
