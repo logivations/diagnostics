@@ -1,37 +1,5 @@
 analyzers:
   ros__parameters:
-    robot_parts:
-      type: 'diagnostic_aggregator/AnalyzerGroup'
-      path: Robot_parts
-      analyzers:
-        arms:
-          type: 'diagnostic_aggregator/GenericAnalyzer'
-          path: Arms
-          startswith: [ '/arms' ]
-        legs:
-          type: 'diagnostic_aggregator/GenericAnalyzer'
-          path: Legs
-          startswith: [ '/legs' ]
-        sensors:
-          type: 'diagnostic_aggregator/GenericAnalyzer'
-          path: Motors
-          startswith: [ '/sensors' ]
-        motors:
-          type: 'diagnostic_aggregator/GenericAnalyzer'
-          path: Motors
-          contains: [ '/motor' ]
-    topology:
-      type: 'diagnostic_aggregator/AnalyzerGroup'
-      path: Topology
-      analyzers:
-        left:
-          type: 'diagnostic_aggregator/GenericAnalyzer'
-          path: Left
-          contains: [ '/left' ]
-        right:
-          type: 'diagnostic_aggregator/GenericAnalyzer'
-          path: Right
-          contains: [ '/right' ]
     #AMR_COMPONENTS_DIAGNOSTIC
     w2mo_amr_status:
       type: 'diagnostic_aggregator/AnalyzerGroup'

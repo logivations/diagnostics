@@ -19,14 +19,9 @@ def generate_launch_description():
         emulate_tty=True,
         output='screen')
 
-    # example node launch
-    diag_publisher = Node(
-        package='diagnostic_aggregator',
-        executable='example_pub.py')
 
     return launch.LaunchDescription([
         aggregator_node,
-        diag_publisher,
         launch.actions.RegisterEventHandler(
             event_handler=launch.event_handlers.OnProcessExit(
                 target_action=aggregator_node,

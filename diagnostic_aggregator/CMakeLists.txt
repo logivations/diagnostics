@@ -143,10 +143,6 @@ install( # launch descriptor
   FILES ${CMAKE_CURRENT_BINARY_DIR}/diagnostics.launch.py
   DESTINATION share/${PROJECT_NAME}
 )
-install( # example publisher
-  PROGRAMS launch/example_pub.py
-  DESTINATION lib/${PROJECT_NAME}
-)
 install( #aggregator configration
   FILES launch/analyzers.yaml
   DESTINATION share/${PROJECT_NAME}
