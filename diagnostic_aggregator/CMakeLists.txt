@@ -15,6 +15,7 @@ find_package(diagnostic_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(rclcpp_components REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/status_item.cpp
@@ -28,6 +29,7 @@ ament_target_dependencies(${PROJECT_NAME}
   "pluginlib"
   "rclcpp"
   "std_msgs"
+  "rclcpp_components"
 )
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE "DIAGNOSTIC_AGGREGATOR_BUILDING_DLL")
@@ -66,6 +68,8 @@ target_compile_definitions(${ANALYZERS} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIO
 add_executable(aggregator_node src/aggregator_node.cpp)
 target_link_libraries(aggregator_node
   ${PROJECT_NAME})
+
+rclcpp_components_register_nodes(${PROJECT_NAME} "diagnostic_aggregator::Aggregator")
 
 # Testing macro
 if(BUILD_TESTING)
