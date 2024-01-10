@@ -45,7 +45,7 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
 
   rclcpp::executors::SingleThreadedExecutor exec;
-  auto agg = std::make_shared<diagnostic_aggregator::Aggregator>();
+  auto agg = std::make_shared<diagnostic_aggregator::Aggregator>(rclcpp::NodeOptions());
   exec.add_node(agg->get_node());
   exec.spin();
 

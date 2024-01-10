@@ -102,14 +102,14 @@ analyzers:
  * any analyzer is not properly specified, or returns false on initialization,
  * the aggregator will report the error and publish it in the aggregated output.
  */
-class Aggregator
+class Aggregator : public rclcpp::Node
 {
 public:
   /*!
    *\brief Constructor initializes with main prefix (ex: '/Robot')
    */
   DIAGNOSTIC_AGGREGATOR_PUBLIC
-  Aggregator();
+  explicit Aggregator(rclcpp::NodeOptions options);
 
   DIAGNOSTIC_AGGREGATOR_PUBLIC
   virtual ~Aggregator();

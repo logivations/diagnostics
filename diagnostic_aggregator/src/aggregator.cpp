@@ -56,14 +56,12 @@ using diagnostic_msgs::msg::DiagnosticStatus;
 /**
  * @todo(anordman): make aggregator a lifecycle node.
  */
-Aggregator::Aggregator()
-: n_(std::make_shared<rclcpp::Node>(
-      "analyzers", "",
-      rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true))),
+Aggregator::Aggregator(rclcpp::NodeOptions options)
+: rclcpp::Node("analyzers", options.automatically_declare_parameters_from_overrides(true)),
   logger_(rclcpp::get_logger("Aggregator")),
   pub_rate_(1.0),
   history_depth_(1000),
-  clock_(n_->get_clock()),
+  clock_(get_clock()),
   base_path_(""),
   critical_(false),
   last_top_level_state_(DiagnosticStatus::STALE)
@@ -72,7 +70,7 @@ Aggregator::Aggregator()
   bool other_as_errors = false;
 
   std::map<std::string, rclcpp::Parameter> parameters;
-  if (!n_->get_parameters("", parameters)) {
+  if (!get_parameters("", parameters)) {
     RCLCPP_ERROR(logger_, "Couldn't retrieve parameters.");
   }
   RCLCPP_DEBUG(logger_, "Retrieved %zu parameter(s).", parameters.size());
@@ -101,6 +99,7 @@ Aggregator::Aggregator()
   RCLCPP_DEBUG(
     logger_, "Aggregator critical publisher configured to: %s", (critical_ ? "true" : "false"));
 
+  n_ = std::shared_ptr<rclcpp::Node>(this, [](rclcpp::Node *) {});
   analyzer_group_ = std::make_unique<AnalyzerGroup>();
   if (!analyzer_group_->init(base_path_, "", n_)) {
     RCLCPP_ERROR(logger_, "Analyzer group for diagnostic aggregator failed to initialize!");
@@ -110,15 +109,15 @@ Aggregator::Aggregator()
   other_analyzer_ = std::make_unique<OtherAnalyzer>(other_as_errors);
   other_analyzer_->init(base_path_);  // This always returns true
 
-  diag_sub_ = n_->create_subscription<DiagnosticArray>(
+  diag_sub_ = create_subscription<DiagnosticArray>(
     "/diagnostics", rclcpp::SystemDefaultsQoS().keep_last(history_depth_),
     std::bind(&Aggregator::diagCallback, this, _1));
-  agg_pub_ = n_->create_publisher<DiagnosticArray>("/diagnostics_agg", 1);
+  agg_pub_ = create_publisher<DiagnosticArray>("/diagnostics_agg", 1);
   toplevel_state_pub_ =
-    n_->create_publisher<DiagnosticStatus>("/diagnostics_toplevel_state", 1);
+    create_publisher<DiagnosticStatus>("/diagnostics_toplevel_state", 1);
 
   int publish_rate_ms = 1000 / pub_rate_;
-  publish_timer_ = n_->create_wall_timer(
+  publish_timer_ = create_wall_timer(
     std::chrono::milliseconds(publish_rate_ms),
     std::bind(&Aggregator::publishData, this));
 }
@@ -253,3 +252,7 @@ rclcpp::Node::SharedPtr Aggregator::get_node() const
 }
 
 }  // namespace diagnostic_aggregator
+
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(diagnostic_aggregator::Aggregator)
