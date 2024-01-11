@@ -46,6 +46,7 @@ set(ANALYZERS "${PROJECT_NAME}_analyzers")
 add_library(${ANALYZERS} SHARED
   src/generic_analyzer.cpp
   src/discard_analyzer.cpp
+  src/analyzer_group.cpp
   src/ignore_analyzer.cpp)
 target_include_directories(${ANALYZERS} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
