@@ -2,6 +2,27 @@
 Changelog for package diagnostic_updater
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+4.3.1 (2024-07-30)
+------------------
+* Fix correctly exporting the library (`#388 <https://github.com/ros/diagnostics/issues/388>`_) (`#393 <https://github.com/ros/diagnostics/issues/393>`_)
+* Minimize header includes by moving impl to .cpp files (`#331 <https://github.com/ros/diagnostics/issues/331>`_) and Fix usage of rclcpp::ok with a non-default context (`#352 <https://github.com/ros/diagnostics/issues/352>`_)  (`#390 <https://github.com/ros/diagnostics/issues/390>`_)
+* Contributors: Christian Henkel, Ramon Wijnands, Hervé Audren
+
+3.2.1 (2024-06-27)
+------------------
+* change(diagnosed-publisher): allow specifying node clock (`#340 <https://github.com/ros/diagnostics/issues/340>`_)
+* Fix usage of rclcpp::ok with a non-default context (`#352 <https://github.com/ros/diagnostics/issues/352>`_)
+* Contributors: Hervé Audren, Rein Appeldoorn
+
+3.2.0 (2024-03-22)
+------------------
+* including depdency (`#322 <https://github.com/ros/diagnostics/issues/322>`_)
+* Debugging instability introduced by `#317 <https://github.com/ros/diagnostics/issues/317>`_  (`#323 <https://github.com/ros/diagnostics/issues/323>`_)
+* feat: add param to use fqn in updater (`#320 <https://github.com/ros/diagnostics/issues/320>`_)
+* fix: method names & verbose logging (`#307 <https://github.com/ros/diagnostics/issues/307>`_)
+* Fix diagnostic_updater timestamps (`#299 <https://github.com/ros/diagnostics/issues/299>`_)
+* Contributors: Christian Henkel, Kevin Schwarzer, h-wata, outrider-jhulas
+
 3.1.2 (2023-03-24)
 ------------------
 
