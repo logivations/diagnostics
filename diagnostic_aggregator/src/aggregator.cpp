@@ -129,15 +129,18 @@ void Aggregator::initAnalyzers()
   RCLCPP_DEBUG(
     logger_, "Aggregator critical publisher configured to: %s", (critical_ ? "true" : "false"));
 
-  n_ = std::shared_ptr<rclcpp::Node>(this, [](rclcpp::Node *) {});
-  analyzer_group_ = std::make_unique<AnalyzerGroup>();
-  if (!analyzer_group_->init(base_path_, "", n_)) {
-    RCLCPP_ERROR(logger_, "Analyzer group for diagnostic aggregator failed to initialize!");
-  }
+  {  // lock the mutex while analyzer_group_ and other_analyzer_ are being updated
+    std::lock_guard<std::mutex> lock(mutex_);
+    n_ = std::shared_ptr<rclcpp::Node>(this, [](rclcpp::Node *) {});
+    analyzer_group_ = std::make_unique<AnalyzerGroup>();
+    if (!analyzer_group_->init(base_path_, "", n_)) {
+      RCLCPP_ERROR(logger_, "Analyzer group for diagnostic aggregator failed to initialize!");
+    }
 
-  // Last analyzer handles remaining data
-  other_analyzer_ = std::make_unique<OtherAnalyzer>(other_as_errors);
-  other_analyzer_->init(base_path_);  // This always returns true
+    // Last analyzer handles remaining data
+    other_analyzer_ = std::make_unique<OtherAnalyzer>(other_as_errors);
+    other_analyzer_->init(base_path_);  // This always returns true
+  }
 
   diag_sub_ = create_subscription<DiagnosticArray>(
     "/diagnostics", rclcpp::SystemDefaultsQoS().keep_last(history_depth_),
