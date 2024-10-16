@@ -44,6 +44,7 @@ from diagnostic_updater import DiagnosticTask, Updater
 import psutil
 
 import rclpy
+from rclpy.node import Node
 
 
 class RamTask(DiagnosticTask):
@@ -69,11 +70,11 @@ class RamTask(DiagnosticTask):
 
         return stat
 
-
-def main():
+def get_ram_diagnostics_node() -> Node:
+    """get ram diagnostics node"""
     hostname = socket.gethostname()
-    rclpy.init()
-    node = rclpy.create_node(f'ram_monitor_{hostname.replace("-", "_")}')
+
+    node = rclpy.create_node('ram_monitor')
 
     updater = Updater(node)
     updater.setHardwareID(hostname)
@@ -84,6 +85,13 @@ def main():
         )
     )
 
+    return node
+
+
+def main():
+    rclpy.init()
+    
+    node = get_ram_diagnostics_node()
     rclpy.spin(node)
 
 

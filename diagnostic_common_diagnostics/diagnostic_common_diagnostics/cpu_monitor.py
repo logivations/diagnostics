@@ -86,13 +86,11 @@ class CpuTask(DiagnosticTask):
 
         return stat
 
-
-def main(args=None):
-    rclpy.init(args=args)
-
+def get_cpu_diagnostics_node() -> Node:
+    """get cpu diagnostics node"""
     # Create the node
     hostname = socket.gethostname()
-    node = Node(f'cpu_monitor_{hostname.replace("-", "_")}')
+    node = Node('cpu_monitor')
 
     # Declare and get parameters
     node.declare_parameter('warning_percentage', 90)
@@ -107,6 +105,13 @@ def main(args=None):
     updater.setHardwareID(hostname)
     updater.add(CpuTask(warning_percentage=warning_percentage, window=window))
 
+    return node
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    
+    node = get_cpu_diagnostics_node()
     rclpy.spin(node)
 
 
