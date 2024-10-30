@@ -43,7 +43,7 @@ from collections import deque
 
 import psutil
 
-from diagnostic_msgs.msg import DiagnosticStatusWrapper
+from diagnostic_msgs.msg import DiagnosticStatus
 from diagnostic_updater import DiagnosticTask, Updater
 
 import rclpy
