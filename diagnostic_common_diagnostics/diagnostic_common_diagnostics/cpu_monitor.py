@@ -52,7 +52,7 @@ from rclpy.node import Node
 
 class CpuTask(DiagnosticTask):
 
-    def __init__(self, warning_percentage=90, window=1, warn_multiple = 3, error_multiple = 5):
+    def __init__(self, warning_percentage=90, window=1, warn_multiple=3, error_multiple=5):
         DiagnosticTask.__init__(self, 'CPU Information')
 
         self._warning_percentage = int(warning_percentage)
