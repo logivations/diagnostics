@@ -35,16 +35,16 @@
 
 # \author Rein Appeldoorn
 
-from collections import deque
+import os
 import socket
 import traceback
 
-from diagnostic_msgs.msg import DiagnosticStatus
+from collections import deque
 
-from diagnostic_updater import DiagnosticTask, Updater
-
-import os
 import psutil
+
+from diagnostic_msgs.msg import DiagnosticStatusWrapper
+from diagnostic_updater import DiagnosticTask, Updater
 
 import rclpy
 from rclpy.node import Node
@@ -52,11 +52,17 @@ from rclpy.node import Node
 
 class CpuTask(DiagnosticTask):
 
-    def __init__(self, warning_percentage=90, window=1):
+    def __init__(self, warning_percentage=90, window=1, warn_multiple = 3, error_multiple = 5):
         DiagnosticTask.__init__(self, 'CPU Information')
 
         self._warning_percentage = int(warning_percentage)
         self._readings = deque(maxlen=window)
+        self._warn_multiple = int(warn_multiple)
+        self._error_multiple = int(error_multiple)
+
+        num_cpus = os.cpu_count()
+        self._warn_threshold = warn_multiple * num_cpus
+        self._error_threshold = error_multiple * num_cpus
 
     def _get_average_reading(self):
         def avg(lst):
@@ -75,13 +81,17 @@ class CpuTask(DiagnosticTask):
         for idx, cpu_percentage in enumerate(cpu_percentages):
             stat.add(f'CPU {idx} Load', f'{cpu_percentage:.2f}')
 
-        num_cpus = os.cpu_count()
         load1, load5, load15 = os.getloadavg()
-        threshold = 3 * num_cpus
-
-        if load1 > threshold:
+        stat.add('System load average 1 min', f'{load1:.2f}')
+        stat.add('System load average 5 min', f'{load5:.2f}')
+        stat.add('System load average 15 min', f'{load15:.2f}')
+        
+        if load1 > self._error_threshold:
+            stat.summary(DiagnosticStatus.ERROR,
+                         f'System load exceeds {self._error_threshold} percent')
+        elif load1 > self._warn_threshold:
             stat.summary(DiagnosticStatus.WARN,
-                         f'System load exceeds {threshold} percent')
+                         f'System load exceeds {self._warn_threshold} percent')
         else:
             stat.summary(DiagnosticStatus.OK,
                          f'CPU Average {cpu_average:.2f} percent')
@@ -98,15 +108,19 @@ def get_cpu_diagnostics_node() -> Node:
     # Declare and get parameters
     node.declare_parameter('warning_percentage', 90)
     node.declare_parameter('window', 1)
+    node.declare_parameter('warn_multiple', 3)
+    node.declare_parameter('error_multiple', 5)
 
     warning_percentage = node.get_parameter(
         'warning_percentage').get_parameter_value().integer_value
     window = node.get_parameter('window').get_parameter_value().integer_value
+    warn_multiple = node.get_parameter('warn_multiple').get_parameter_value().integer_value
+    error_multiple = node.get_parameter('error_multiple').get_parameter_value().integer_value
 
     # Create diagnostic updater with default updater rate of 1 hz
     updater = Updater(node)
     updater.setHardwareID(hostname)
-    updater.add(CpuTask(warning_percentage=warning_percentage, window=window))
+    updater.add(CpuTask(warning_percentage=warning_percentage, window=window, warn_multiple=warn_multiple, error_multiple=error_multiple))
 
     return node
 
