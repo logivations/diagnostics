@@ -88,10 +88,10 @@ class CpuTask(DiagnosticTask):
         
         if load1 > self._error_threshold:
             stat.summary(DiagnosticStatus.ERROR,
-                         f'System load exceeds {self._error_threshold} percent')
+                         f'System load ({load1:.1f}) exceeds threshold {self._error_threshold}')
         elif load1 > self._warn_threshold:
             stat.summary(DiagnosticStatus.WARN,
-                         f'System load exceeds {self._warn_threshold} percent')
+                         f'System load ({load1:.1f}) exceeds threshold {self._warn_threshold}')
         else:
             stat.summary(DiagnosticStatus.OK,
                          f'CPU Average {cpu_average:.2f} percent')
