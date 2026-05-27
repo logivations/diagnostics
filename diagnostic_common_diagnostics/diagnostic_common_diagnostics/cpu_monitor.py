@@ -35,15 +35,16 @@
 
 # \author Rein Appeldoorn
 
-from collections import deque
+import os
 import socket
 import traceback
 
-from diagnostic_msgs.msg import DiagnosticStatus
-
-from diagnostic_updater import DiagnosticTask, Updater
+from collections import deque
 
 import psutil
+
+from diagnostic_msgs.msg import DiagnosticStatus
+from diagnostic_updater import DiagnosticTask, Updater
 
 import rclpy
 from rclpy.node import Node
@@ -51,11 +52,17 @@ from rclpy.node import Node
 
 class CpuTask(DiagnosticTask):
 
-    def __init__(self, warning_percentage=90, window=1):
+    def __init__(self, warning_percentage=90, window=1, warn_multiple=3, error_multiple=5):
         DiagnosticTask.__init__(self, 'CPU Information')
 
         self._warning_percentage = int(warning_percentage)
         self._readings = deque(maxlen=window)
+        self._warn_multiple = int(warn_multiple)
+        self._error_multiple = int(error_multiple)
+
+        num_cpus = os.cpu_count()
+        self._warn_threshold = warn_multiple * num_cpus
+        self._error_threshold = error_multiple * num_cpus
 
     def _get_average_reading(self):
         def avg(lst):
@@ -71,15 +78,20 @@ class CpuTask(DiagnosticTask):
 
         stat.add('CPU Load Average', f'{cpu_average:.2f}')
 
-        warn = False
         for idx, cpu_percentage in enumerate(cpu_percentages):
             stat.add(f'CPU {idx} Load', f'{cpu_percentage:.2f}')
-            if cpu_percentage > self._warning_percentage:
-                warn = True
 
-        if warn:
+        load1, load5, load15 = os.getloadavg()
+        stat.add('System load average 1 min', f'{load1:.2f}')
+        stat.add('System load average 5 min', f'{load5:.2f}')
+        stat.add('System load average 15 min', f'{load15:.2f}')
+        
+        if load1 > self._error_threshold:
+            stat.summary(DiagnosticStatus.ERROR,
+                         f'System load ({load1:.1f}) exceeds threshold {self._error_threshold}')
+        elif load1 > self._warn_threshold:
             stat.summary(DiagnosticStatus.WARN,
-                         f'At least one CPU exceeds {self._warning_percentage} percent')
+                         f'System load ({load1:.1f}) exceeds threshold {self._warn_threshold}')
         else:
             stat.summary(DiagnosticStatus.OK,
                          f'CPU Average {cpu_average:.2f} percent')
@@ -87,30 +99,35 @@ class CpuTask(DiagnosticTask):
         return stat
 
 
-def main(args=None):
-    rclpy.init(args=args)
-
+def get_cpu_diagnostics_node() -> Node:
+    """Get cpu diagnostics node."""
     # Create the node
     hostname = socket.gethostname()
-    # Every invalid symbol is replaced by underscore.
-    # isalnum() alone also allows invalid symbols depending on the locale
-    cleaned_hostname = ''.join(
-        c if (c.isascii() and c.isalnum()) else '_' for c in hostname)
-    node = Node(f'cpu_monitor_{cleaned_hostname}')
+    node = Node('cpu_monitor')
 
     # Declare and get parameters
     node.declare_parameter('warning_percentage', 90)
     node.declare_parameter('window', 1)
+    node.declare_parameter('warn_multiple', 3)
+    node.declare_parameter('error_multiple', 5)
 
     warning_percentage = node.get_parameter(
         'warning_percentage').get_parameter_value().integer_value
     window = node.get_parameter('window').get_parameter_value().integer_value
+    warn_multiple = node.get_parameter('warn_multiple').get_parameter_value().integer_value
+    error_multiple = node.get_parameter('error_multiple').get_parameter_value().integer_value
 
     # Create diagnostic updater with default updater rate of 1 hz
     updater = Updater(node)
     updater.setHardwareID(hostname)
-    updater.add(CpuTask(warning_percentage=warning_percentage, window=window))
+    updater.add(CpuTask(warning_percentage=warning_percentage, window=window, warn_multiple=warn_multiple, error_multiple=error_multiple))
 
+    return node
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = get_cpu_diagnostics_node()
     rclpy.spin(node)
 
 

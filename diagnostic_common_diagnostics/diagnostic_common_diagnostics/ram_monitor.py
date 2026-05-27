@@ -44,6 +44,7 @@ from diagnostic_updater import DiagnosticTask, Updater
 import psutil
 
 import rclpy
+from rclpy.node import Node
 
 
 class RamTask(DiagnosticTask):
@@ -70,14 +71,11 @@ class RamTask(DiagnosticTask):
         return stat
 
 
-def main():
+def get_ram_diagnostics_node() -> Node:
+    """Get ram diagnostics node."""
     hostname = socket.gethostname()
-    # Every invalid symbol is replaced by underscore.
-    # isalnum() alone also allows invalid symbols depending on the locale
-    cleaned_hostname = ''.join(
-        c if (c.isascii() and c.isalnum()) else '_' for c in hostname)
-    rclpy.init()
-    node = rclpy.create_node(f'ram_monitor_{cleaned_hostname}')
+
+    node = rclpy.create_node('ram_monitor')
 
     updater = Updater(node)
     updater.setHardwareID(hostname)
@@ -88,6 +86,12 @@ def main():
         )
     )
 
+    return node
+
+
+def main():
+    rclpy.init()
+    node = get_ram_diagnostics_node()
     rclpy.spin(node)
 
 
