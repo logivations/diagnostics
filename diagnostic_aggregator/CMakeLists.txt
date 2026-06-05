@@ -50,6 +50,12 @@ set(ANALYZERS "${PROJECT_NAME}_analyzers")
 add_library(${ANALYZERS} SHARED
   src/generic_analyzer.cpp
   src/discard_analyzer.cpp
+  # analyzer_group.cpp is also compiled into ${PROJECT_NAME}; this copy makes
+  # the AnalyzerGroup pluginlib factory register against this library (where
+  # plugin_description.xml declares it) even when ${PROJECT_NAME} was already
+  # loaded by the component container, whose registrations land in a different
+  # class_loader bucket.
+  src/analyzer_group.cpp
   src/ignore_analyzer.cpp)
 target_include_directories(${ANALYZERS} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
