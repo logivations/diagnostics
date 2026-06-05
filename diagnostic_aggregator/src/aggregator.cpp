@@ -60,20 +60,23 @@ Aggregator::Aggregator()
 : Aggregator(rclcpp::NodeOptions()) {}
 
 Aggregator::Aggregator(rclcpp::NodeOptions options)
-: n_(std::make_shared<rclcpp::Node>(
-      "analyzers", "",
-      options.allow_undeclared_parameters(true).
-      automatically_declare_parameters_from_overrides(true))),
+: rclcpp::Node(
+    "analyzers", "",
+    options.allow_undeclared_parameters(true).
+    automatically_declare_parameters_from_overrides(true)),
   logger_(rclcpp::get_logger("Aggregator")),
   pub_rate_(1.0),
   history_depth_(1000),
-  clock_(n_->get_clock()),
+  clock_(get_clock()),
   base_path_(""),
   critical_(false),
   publish_values_(true),
   last_top_level_state_(DiagnosticStatus::STALE)
 {
   RCLCPP_DEBUG(logger_, "constructor");
+  // The aggregator itself is the node (allows loading it as a composable
+  // component); n_ is a non-owning alias for the existing call sites.
+  n_ = rclcpp::Node::SharedPtr(this, [](rclcpp::Node *) {});
   initAnalyzers();
 
   diag_sub_ = n_->create_subscription<DiagnosticArray>(
@@ -330,3 +333,6 @@ rclcpp::Node::SharedPtr Aggregator::get_node() const
 }
 
 }  // namespace diagnostic_aggregator
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(diagnostic_aggregator::Aggregator)

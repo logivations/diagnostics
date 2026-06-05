@@ -15,6 +15,7 @@ find_package(ament_cmake REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(rcl_interfaces REQUIRED)
 find_package(std_msgs REQUIRED)
 
@@ -30,9 +31,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   ${std_msgs_TARGETS}
   pluginlib::pluginlib
   rclcpp::rclcpp
+  rclcpp_components::component
 )
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE "DIAGNOSTIC_AGGREGATOR_BUILDING_DLL")
+
+rclcpp_components_register_nodes(${PROJECT_NAME} "diagnostic_aggregator::Aggregator")
 
 # see https://github.com/pybind/pybind11/commit/ba33b2fc798418c8c9dfe801c5b9023d3703f417
 if(NOT WIN32)

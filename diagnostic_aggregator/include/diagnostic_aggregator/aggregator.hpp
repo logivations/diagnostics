@@ -103,7 +103,7 @@ analyzers:
  * any analyzer is not properly specified, or returns false on initialization,
  * the aggregator will report the error and publish it in the aggregated output.
  */
-class Aggregator
+class Aggregator : public rclcpp::Node
 {
 public:
   /*!
@@ -132,6 +132,7 @@ public:
   rclcpp::Node::SharedPtr get_node() const;
 
 private:
+  /// Non-owning alias of this node, kept so internal call sites and get_node() keep working
   rclcpp::Node::SharedPtr n_;
 
   rclcpp::Logger logger_;
